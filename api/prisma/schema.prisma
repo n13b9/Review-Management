@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Business {
+  id               String   @id @default(uuid())
+  name             String
+  googleBusinessId String?
+  totalReviews     Int      @default(0)
+  averageRating    Float    @default(0)
+  createdAt        DateTime @default(now())
+  reviews          Review[]
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  businessId String
+  author     String
+  rating     Int
+  comment    String
+  date       DateTime @default(now())
+  replyText  String?
+  createdAt  DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id])
+}
