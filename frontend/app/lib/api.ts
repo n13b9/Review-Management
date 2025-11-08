@@ -1,4 +1,16 @@
-// Mock API for dashboard data
+export interface DashboardStats {
+  totalReviews: number;
+  averageRating: number;
+  lastReviewDate: string;
+  trendData: { month: string; reviews: number }[];
+  recentReviews: {
+    id: string;
+    author: string;
+    rating: number;
+    comment: string;
+    date: string;
+  }[];
+}
 
 export interface Review {
   id: string;
@@ -6,136 +18,65 @@ export interface Review {
   rating: number;
   comment: string;
   date: string;
-  platform: 'Google' | 'TripAdvisor' | 'Yelp';
-  replyStatus: 'pending' | 'replied';
-  businessId: string;
+  replyText?: string;
+  platform?: string;        // <-- for Google, Yelp, etc.
+  replyStatus?: "pending" | "replied";  // <-- for UI badges
 }
 
 export interface Business {
   id: string;
   name: string;
+  googleBusinessId?: string | null;
   totalReviews: number;
   averageRating: number;
-  createdDate: string;
+  createdAt: string;
 }
 
-export interface DashboardStats {
-  totalReviews: number;
-  averageRating: number;
-  lastReviewDate: string;
-  recentReviews: Review[];
-  trendData: Array<{ month: string; reviews: number }>;
+// Fetch all businesses — matches backend route /business/all
+export async function getBusinesses(): Promise<Business[]> {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  const res = await fetch(`${API_URL}/business/all`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch businesses");
+  return res.json();
 }
 
-// Mock data
-const mockReviews: Review[] = [
-  {
-    id: '1',
-    author: 'Sarah Johnson',
-    rating: 5,
-    comment: 'Excellent service! The team was professional and responsive. Highly recommend.',
-    date: '2024-03-15',
-    platform: 'Google',
-    replyStatus: 'replied',
-    businessId: '1',
-  },
-  {
-    id: '2',
-    author: 'Michael Chen',
-    rating: 4,
-    comment: 'Great experience overall. Fast delivery and quality product.',
-    date: '2024-03-14',
-    platform: 'Google',
-    replyStatus: 'pending',
-    businessId: '1',
-  },
-  {
-    id: '3',
-    author: 'Emily Rodriguez',
-    rating: 5,
-    comment: 'Outstanding customer support! They went above and beyond.',
-    date: '2024-03-13',
-    platform: 'TripAdvisor',
-    replyStatus: 'replied',
-    businessId: '1',
-  },
-  {
-    id: '4',
-    author: 'David Kim',
-    rating: 3,
-    comment: 'Good service but could be faster. Overall satisfied.',
-    date: '2024-03-12',
-    platform: 'Yelp',
-    replyStatus: 'pending',
-    businessId: '1',
-  },
-  {
-    id: '5',
-    author: 'Lisa Anderson',
-    rating: 5,
-    comment: 'Perfect! Everything was exactly as described. Will use again.',
-    date: '2024-03-11',
-    platform: 'Google',
-    replyStatus: 'replied',
-    businessId: '1',
-  },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-const mockBusinesses: Business[] = [
-  {
-    id: '1',
-    name: 'Downtown Coffee Shop',
-    totalReviews: 156,
-    averageRating: 4.7,
-    createdDate: '2023-01-15',
-  },
-  {
-    id: '2',
-    name: 'Urban Fitness Center',
-    totalReviews: 243,
-    averageRating: 4.8,
-    createdDate: '2023-02-20',
-  },
-  {
-    id: '3',
-    name: 'Bella Italia Restaurant',
-    totalReviews: 189,
-    averageRating: 4.6,
-    createdDate: '2023-03-10',
-  },
-];
+export async function getBusinessOverview() {
+  const res = await fetch(`${API_URL}/business/overview`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch overview");
+  return res.json();
+}
 
-export const getDashboardStats = async (): Promise<DashboardStats> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 300));
+export async function getReviews() {
+  const res = await fetch(`${API_URL}/reviews`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch reviews");
+  return res.json();
+}
 
+export async function postReply(reviewId: string, replyText: string) {
+  const res = await fetch(`${API_URL}/reviews/${reviewId}/reply`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ replyText }),
+  });
+  if (!res.ok) throw new Error("Failed to post reply");
+  return res.json();
+}
+
+export async function getDashboardStats(): Promise<DashboardStats> {
+  const res = await fetch(`${API_URL}/business/overview`, { cache: "no-store" });
+  console.log("🔍 Fetching:", `${API_URL}/business/overview`, res.status);
+  if (!res.ok) throw new Error("Failed to fetch overview data");
+
+  const data = await res.json();
+
+  // Normalize backend response to DashboardStats shape
   return {
-    totalReviews: 156,
-    averageRating: 4.7,
-    lastReviewDate: '2024-03-15',
-    recentReviews: mockReviews.slice(0, 5),
-    trendData: [
-      { month: 'Oct', reviews: 28 },
-      { month: 'Nov', reviews: 35 },
-      { month: 'Dec', reviews: 42 },
-      { month: 'Jan', reviews: 38 },
-      { month: 'Feb', reviews: 45 },
-      { month: 'Mar', reviews: 51 },
-    ],
+    totalReviews: data.totalReviews,
+    averageRating: data.averageRating,
+    lastReviewDate: data.latestReviews?.[0]?.date ?? null,
+    trendData: [], // placeholder (you can fill in later)
+    recentReviews: data.latestReviews ?? [],
   };
-};
-
-export const getReviews = async (): Promise<Review[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return mockReviews;
-};
-
-export const getBusinesses = async (): Promise<Business[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return mockBusinesses;
-};
-
-export const sendReply = async (reviewId: string, reply: string): Promise<void> => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  console.log(`Reply sent for review ${reviewId}:`, reply);
-};
+}

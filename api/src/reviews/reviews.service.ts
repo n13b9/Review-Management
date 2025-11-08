@@ -11,10 +11,10 @@ export class ReviewsService {
     });
   }
 
-  async addReply(id: string, reply: string) {
+  async addReply(id: string, replyText: string) {
     return this.prisma.review.update({
       where: { id },
-      data: { replyText: reply },
+      data: { replyText },
     });
   }
 }

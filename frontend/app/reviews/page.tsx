@@ -28,7 +28,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
-import { getReviews, Review, sendReply } from "@/lib/api";
+import { getReviews, Review, postReply } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Reviews() {
@@ -75,7 +75,7 @@ export default function Reviews() {
     if (!selectedReview || !replyText.trim()) return;
 
     try {
-      await sendReply(selectedReview.id, replyText);
+      await postReply(selectedReview.id, replyText);
       toast({
         title: "Reply sent!",
         description: "Your reply has been submitted successfully.",

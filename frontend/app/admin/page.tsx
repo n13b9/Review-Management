@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import  DashboardLayout  from "@/components/DashboardLayout";
+import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -17,8 +17,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getBusinesses, Business, getReviews, Review } from "@/lib/api";
-import  ReviewCard  from "@/components/ReviewCard";
+import { getReviews, Review, Business, getBusinesses } from "@/lib/api";
+import ReviewCard from "@/components/ReviewCard";
 
 export default function Admin() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -46,7 +46,7 @@ export default function Admin() {
   const handleViewDetails = async (business: Business) => {
     setSelectedBusiness(business);
     const reviews = await getReviews();
-    const filtered = reviews.filter((r) => r.businessId === business.id);
+    const filtered = reviews.filter((r:any) => (r as any).businessId === business.id);
     setBusinessReviews(filtered);
   };
 
@@ -89,7 +89,7 @@ export default function Admin() {
                   <TableCell>{business.totalReviews}</TableCell>
                   <TableCell>{business.averageRating.toFixed(1)}</TableCell>
                   <TableCell>
-                    {new Date(business.createdDate).toLocaleDateString()}
+                    {new Date(business.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
                     <Button

@@ -9,4 +9,9 @@ export class BusinessController {
   getOverview() {
     return this.businessService.getOverview();
   }
+
+  @Get('all')
+  async getAllBusinesses() {
+    return this.businessService.getAllBusinesses();
+  }
 }

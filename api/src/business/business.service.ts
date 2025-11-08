@@ -26,4 +26,28 @@ export class BusinessService {
         .slice(0, 5),
     };
   }
+
+  async getAllBusinesses() {
+    const businesses = await this.prisma.business.findMany({
+      include: { reviews: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  
+    // Shape the response for the admin table
+    return businesses.map((b) => ({
+      id: b.id,
+      name: b.name,
+      googleBusinessId: b.googleBusinessId,
+      totalReviews: b.reviews.length,
+      averageRating:
+        b.reviews.length > 0
+          ? Number(
+              (b.reviews.reduce((sum, r) => sum + r.rating, 0) /
+                b.reviews.length).toFixed(1)
+            )
+          : 0,
+      createdAt: b.createdAt,
+    }));
+  }
 }
+

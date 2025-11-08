@@ -6,12 +6,12 @@ export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Get()
-  getAll() {
+  async getAll() {
     return this.reviewsService.getAll();
   }
 
   @Post(':id/reply')
-  addReply(@Param('id') id: string, @Body('reply') reply: string) {
-    return this.reviewsService.addReply(id, reply);
+  async addReply(@Param('id') id: string, @Body('replyText') replyText: string) {
+    return this.reviewsService.addReply(id, replyText);
   }
 }
