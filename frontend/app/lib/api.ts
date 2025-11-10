@@ -34,7 +34,7 @@ export interface Business {
 
 // Fetch all businesses — matches backend route /business/all
 export async function getBusinesses(): Promise<Business[]> {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
   const res = await fetch(`${API_URL}/business/all`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch businesses");
   return res.json();
